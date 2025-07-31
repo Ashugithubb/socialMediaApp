@@ -14,8 +14,9 @@ export class User {
     name:string
 
     @OneToMany(()=>Post,(p)=>p.user)
-    post:Post[]
+    posts:Post[]
 
     @OneToMany(()=>Like,(l)=>l.user)
-    like:Like[]
+    likes:Like[]
+
 }

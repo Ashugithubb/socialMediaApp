@@ -1,5 +1,5 @@
 import { Post } from "src/posts/entities/post.entity";
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('qouted_posts')
 export class QoutePost {
@@ -7,14 +7,15 @@ export class QoutePost {
     id: number
 
     @Column()
-    authhor: string
+    author: string
 
     @Column()
-    qoute:string
+    quote: string
 
 
-    @OneToOne(()=>Post)
-    post:Post
+    @OneToOne(() => Post, post => post.quotePost, { onDelete: 'CASCADE' })
+    @JoinColumn()
+    post: Post;
 
 
 

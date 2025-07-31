@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { DiscoverPostQueryDto } from './dto/query.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -11,6 +12,16 @@ export class PostsController {
   create(@Body() createPostDto: UpdatePostDto) {
     return this.postsService.create(createPostDto);
   }
+
+@Get('discover')
+getDiscover(@Query() query: DiscoverPostQueryDto) {
+  return this.postsService.discoverPosts(query);
+}
+
+
+
+
+
 
   @Get()
   findAll() {
@@ -28,7 +39,7 @@ export class PostsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  delete(@Param('id') id: string) {
+    return this.postsService.delete(+id);
   }
 }

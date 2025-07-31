@@ -1,5 +1,5 @@
 import { Post } from "src/posts/entities/post.entity"
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity('texted_post')
 export class TextPost {
@@ -9,7 +9,8 @@ export class TextPost {
     @Column()
     content: string
 
-    @OneToOne(() => Post)
-    post: Post
+@OneToOne(() => Post, post => post.textPost, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  post: Post;
 
 }
