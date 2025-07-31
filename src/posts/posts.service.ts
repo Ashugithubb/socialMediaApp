@@ -75,7 +75,7 @@ export class PostsService {
     return { message: 'Post and related data deleted successfully' };
   }
 
-
+// http://localhost:3001/task/filter?page=2&limit=3&title=project&startTime=2025-08-01T00:00:00.000Z&endTime=2025-08-07T23:59:59.999Z
 async discoverPosts(query: DiscoverPostQueryDto) {
   const {
     page = 1,

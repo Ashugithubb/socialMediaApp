@@ -20,9 +20,6 @@ getDiscover(@Query() query: DiscoverPostQueryDto) {
 
 
 
-
-
-
   @Get()
   findAll() {
     return this.postsService.findAll();
@@ -43,3 +40,7 @@ getDiscover(@Query() query: DiscoverPostQueryDto) {
     return this.postsService.delete(+id);
   }
 }
+
+// @Param('id') → URL: /posts/5
+
+// @Query('id') → URL: /posts?id=5
