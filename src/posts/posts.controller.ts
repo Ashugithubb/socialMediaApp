@@ -23,6 +23,22 @@ export class PostsController {
     return this.postsService.getMyPosts(+userId);
   }
 
+ @Delete(':id')
+  delete(@Param('id') id: string) {
+    
+    return this.postsService.delete(+id);
+  }
+@Get(':postId/likes')
+  async getLikesByPost(@Param('postId') postId: number) {
+    return await this.postsService.getLikesByPost(postId);
+  }
+
+
+
+
+
+
+
   @Get()
   findAll() {
     return this.postsService.findAll();
@@ -38,10 +54,7 @@ export class PostsController {
     return this.postsService.update(+id, updatePostDto);
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.postsService.delete(+id);
-  }
+  
 }
 
 

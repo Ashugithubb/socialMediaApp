@@ -8,8 +8,9 @@ import { Repository } from 'typeorm';
 import { TextPost } from 'src/text_post/entities/text_post.entity';
 import { QoutePost } from 'src/qoute_post/entities/qoute_post.entity';
 import { Post } from './entities/post.entity';
- import { Brackets } from 'typeorm';
+import { Brackets } from 'typeorm';
 import { DiscoverPostQueryDto } from './dto/query.dto';
+import { LikeService } from 'src/like/like.service';
 
 @Injectable()
 export class PostsService {
@@ -25,6 +26,7 @@ export class PostsService {
 
     @InjectRepository(QoutePost)
     private qoutePostRepository: Repository<QoutePost>,
+    private readonly likeService: LikeService
   ) { }
 
 
@@ -35,22 +37,21 @@ export class PostsService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-   
     const post = this.postRepository.create({
       user,
       postCatogory,
     });
 
-    await this.postRepository.save(post); 
+    await this.postRepository.save(post);
 
-    
+
     if (postCatogory === PostCategory.TEXT) {
       const textPost = this.textPostRepository.create({
         content,
         post,
       });
       await this.textPostRepository.save(textPost);
+
     } else if (postCatogory === PostCategory.QOUTE) {
       const quotePost = this.qoutePostRepository.create({
         quote,
@@ -67,78 +68,76 @@ export class PostsService {
   async delete(postId: number) {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) throw new NotFoundException('Post not found');
-
     await this.postRepository.delete(postId);
-
     return { message: 'Post and related data deleted successfully' };
   }
 
-// http://localhost:3001/task/filter?page=2&limit=3&title=project&startTime=2025-08-01T00:00:00.000Z&endTime=2025-08-07T23:59:59.999Z
 
-async discoverPosts(query: DiscoverPostQueryDto) {
-  const {
-    page = 1,
-    limit = 10,
-    search,
-    postCatogory,
-    sort = 'NEW',
-  } = query;
 
-  const qb = this.postRepository
-    .createQueryBuilder('post')
-    .leftJoinAndSelect('post.user', 'user')
-    .leftJoinAndSelect('post.textPost', 'textPost')
-    .leftJoinAndSelect('post.quotePost', 'quotePost');
+  async discoverPosts(query: DiscoverPostQueryDto) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      postCatogory,
+      sort = 'NEW',
+    } = query;
 
- 
-  if (postCatogory) {
-    qb.andWhere('post.postCatogory = :postCatogory', { postCatogory });
+    const qb = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.textPost', 'textPost')
+      .leftJoinAndSelect('post.quotePost', 'quotePost');
+
+
+    if (postCatogory) {
+      qb.andWhere('post.postCatogory = :postCatogory', { postCatogory });
+    }
+
+
+    if (search) {
+      qb.andWhere(
+        new Brackets((qb) => {
+          qb.where('textPost.content ILIKE :search', { search: `%${search}%` })
+            .orWhere('quotePost.quote ILIKE :search', { search: `%${search}%` });
+        }),
+      );
+    }
+    qb.orderBy('post.createdAt', sort === 'NEW' ? 'DESC' : 'ASC');
+    qb.skip((page - 1) * limit).take(limit);
+    const [data, total] = await qb.getManyAndCount();
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  
-  if (search) {
-    qb.andWhere(
-      new Brackets((qb) => {
-        qb.where('textPost.content ILIKE :search', { search: `%${search}%` })
-          .orWhere('quotePost.quote ILIKE :search', { search: `%${search}%` });
-      }),
-    );
+  async getMyPosts(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const posts = await this.postRepository.find({
+      where: { user: { id: userId } },
+      relations: ['textPost', 'quotePost', 'likes'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return posts;
   }
 
-  qb.orderBy('post.createdAt', sort === 'NEW' ? 'DESC' : 'ASC');
-
-  
-  qb.skip((page - 1) * limit).take(limit);
-
- 
-  const [data, total] = await qb.getManyAndCount();
-
-  return {
-    data,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit),
-  };
-}
-
-async getMyPosts(userId: number) {
-  const user = await this.userRepository.findOne({
-    where: { id: userId },
-  });
-
-  if (!user) {
-    throw new NotFoundException('User not found');
+  async getLikesByPost(postId: number) {
+    const post = await this.postRepository.findOneBy({ id: postId });
+    if (!post) throw new NotFoundException('Post not found');
+    return await this.likeService.getLikesByPost(postId);
   }
-  
-  const posts = await this.postRepository.find({
-    where: { user: { id: userId } },
-    relations: ['textPost', 'quotePost', 'likes'],
-    order: { createdAt: 'DESC' },
-  });
-
-  return posts;
-}
 
 
 
@@ -174,26 +173,25 @@ async getMyPosts(userId: number) {
 
 
 
+  // http://localhost:3001/task/filter?page=2&limit=3&title=project&startTime=2025-08-01T00:00:00.000Z&endTime=2025-08-07T23:59:59.999Z
 
+  // async getMyPosts(userId: number, page = 1, limit = 10) {
+  //   const [posts, total] = await this.postRepository.findAndCount({
+  //     where: { user: { id: userId } },
+  //     relations: ['textPost', 'quotePost', 'likes'],
+  //     order: { createdAt: 'DESC' },
+  //     skip: (page - 1) * limit,
+  //     take: limit,
+  //   });
 
-
-// async getMyPosts(userId: number, page = 1, limit = 10) {
-//   const [posts, total] = await this.postRepository.findAndCount({
-//     where: { user: { id: userId } },
-//     relations: ['textPost', 'quotePost', 'likes'],
-//     order: { createdAt: 'DESC' },
-//     skip: (page - 1) * limit,
-//     take: limit,
-//   });
-
-//   return {
-//     data: posts,
-//     total,
-//     page,
-//     limit,
-//     totalPages: Math.ceil(total / limit),
-//   };
-// }
+  //   return {
+  //     data: posts,
+  //     total,
+  //     page,
+  //     limit,
+  //     totalPages: Math.ceil(total / limit),
+  //   };
+  // }
 
 
 

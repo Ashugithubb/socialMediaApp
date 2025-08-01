@@ -9,9 +9,10 @@ import { QoutePost } from 'src/qoute_post/entities/qoute_post.entity';
 import { QoutePostModule } from 'src/qoute_post/qoute_post.module';
 import { TextPost } from 'src/text_post/entities/text_post.entity';
 import { User } from 'src/user/entities/user.entity';
+import { LikeModule } from 'src/like/like.module';
 
 @Module({
-  imports:[ TypeOrmModule.forFeature([Post, User, TextPost, QoutePost]) ,UserModule,TextPostModule,QoutePostModule],
+  imports:[ TypeOrmModule.forFeature([Post, User, TextPost, QoutePost]) ,UserModule,TextPostModule,QoutePostModule,LikeModule],
   controllers: [PostsController],
   providers: [PostsService],
 })

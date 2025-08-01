@@ -3,14 +3,28 @@ import { LikeService } from './like.service';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
 
-@Controller('like')
+@Controller('likes')
 export class LikeController {
-  constructor(private readonly likeService: LikeService) {}
+  constructor(private readonly likeService: LikeService) { }
 
   @Post()
   create(@Body() createLikeDto: CreateLikeDto) {
-    return this.likeService.create(createLikeDto);
+    return this.likeService.likePost(createLikeDto);
   }
+
+  @Delete()
+  remove(@Body() createLikeDto: CreateLikeDto) {
+
+    return this.likeService.remove(createLikeDto);
+  }
+
+  @Patch()
+  update(@Body() createLikeDto: CreateLikeDto) {
+    return this.likeService.update(createLikeDto);
+  }
+
+
+
 
   @Get()
   findAll() {
@@ -22,13 +36,7 @@ export class LikeController {
     return this.likeService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLikeDto: UpdateLikeDto) {
-    return this.likeService.update(+id, updateLikeDto);
-  }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.likeService.remove(+id);
-  }
+
+
 }

@@ -1,4 +1,3 @@
-// src/posts/dto/discover-post-query.dto.ts
 import { IsEnum, IsIn, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PostCategory } from '../enum/post.category';
