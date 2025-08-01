@@ -11,7 +11,6 @@ import { Post } from './entities/post.entity';
  import { Brackets } from 'typeorm';
 import { DiscoverPostQueryDto } from './dto/query.dto';
 
-
 @Injectable()
 export class PostsService {
   constructor(
@@ -32,21 +31,20 @@ export class PostsService {
   async create(createPostDto: Partial<CreatePostDto>) {
     const { postCatogory, userId, content, quote, author } = createPostDto;
 
-    // 1. Validate user
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // 2. Create base post
+   
     const post = this.postRepository.create({
       user,
       postCatogory,
     });
 
-    await this.postRepository.save(post); // so we get post.id
+    await this.postRepository.save(post); 
 
-    // 3. Handle polymorphic logic
+    
     if (postCatogory === PostCategory.TEXT) {
       const textPost = this.textPostRepository.create({
         content,
@@ -91,12 +89,12 @@ async discoverPosts(query: DiscoverPostQueryDto) {
     .leftJoinAndSelect('post.textPost', 'textPost')
     .leftJoinAndSelect('post.quotePost', 'quotePost');
 
-  // 🔎 Filter by post category
+ 
   if (postCatogory) {
     qb.andWhere('post.postCatogory = :postCatogory', { postCatogory });
   }
 
-  // 🔎 Search in text or quote content
+  
   if (search) {
     qb.andWhere(
       new Brackets((qb) => {
@@ -106,13 +104,12 @@ async discoverPosts(query: DiscoverPostQueryDto) {
     );
   }
 
-  // 📅 Sort by creation date
   qb.orderBy('post.createdAt', sort === 'NEW' ? 'DESC' : 'ASC');
 
-  // 📄 Pagination
+  
   qb.skip((page - 1) * limit).take(limit);
 
-  // 🔁 Execute and return
+ 
   const [data, total] = await qb.getManyAndCount();
 
   return {
@@ -123,8 +120,6 @@ async discoverPosts(query: DiscoverPostQueryDto) {
     totalPages: Math.ceil(total / limit),
   };
 }
-
-
 
 async getMyPosts(userId: number) {
   const user = await this.userRepository.findOne({
@@ -143,6 +138,43 @@ async getMyPosts(userId: number) {
 
   return posts;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // async getMyPosts(userId: number, page = 1, limit = 10) {
 //   const [posts, total] = await this.postRepository.findAndCount({

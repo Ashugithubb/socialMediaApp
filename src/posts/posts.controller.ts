@@ -6,30 +6,22 @@ import { DiscoverPostQueryDto } from './dto/query.dto';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService) { }
 
   @Post()
   create(@Body() createPostDto: UpdatePostDto) {
     return this.postsService.create(createPostDto);
   }
 
-@Get('discover')
-getDiscover(@Query() query: DiscoverPostQueryDto) {
-  return this.postsService.discoverPosts(query);
-}
-
+  @Get()
+  getDiscover(@Query() query: DiscoverPostQueryDto) {
+    return this.postsService.discoverPosts(query);
+  }
 
   @Get('user/:userId')
   async getUserPosts(@Param('userId') userId: number) {
     return this.postsService.getMyPosts(+userId);
   }
-
-
-// @Get('me')
-// getMyPosts(@Query('page') page: number, @Query('limit') limit: number, @UserId() userId: number) {
-//   return this.postsService.getMyPosts(userId, page, limit);
-// }
-
 
   @Get()
   findAll() {
@@ -52,6 +44,19 @@ getDiscover(@Query() query: DiscoverPostQueryDto) {
   }
 }
 
+
+
+
+
+
+
+
 // @Param('id') → URL: /posts/5
 
 // @Query('id') → URL: /posts?id=5
+
+
+// @Get('me')
+// getMyPosts(@Query('page') page: number, @Query('limit') limit: number, @UserId() userId: number) {
+//   return this.postsService.getMyPosts(userId, page, limit);
+// }
