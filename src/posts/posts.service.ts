@@ -125,6 +125,51 @@ async discoverPosts(query: DiscoverPostQueryDto) {
 }
 
 
+
+async getMyPosts(userId: number) {
+  const user = await this.userRepository.findOne({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  const posts = await this.postRepository.find({
+    where: { user: { id: userId } },
+    relations: ['textPost', 'quotePost', 'likes'],
+    order: { createdAt: 'DESC' },
+  });
+
+  return posts;
+}
+
+// async getMyPosts(userId: number, page = 1, limit = 10) {
+//   const [posts, total] = await this.postRepository.findAndCount({
+//     where: { user: { id: userId } },
+//     relations: ['textPost', 'quotePost', 'likes'],
+//     order: { createdAt: 'DESC' },
+//     skip: (page - 1) * limit,
+//     take: limit,
+//   });
+
+//   return {
+//     data: posts,
+//     total,
+//     page,
+//     limit,
+//     totalPages: Math.ceil(total / limit),
+//   };
+// }
+
+
+
+
+
+
+
+
+
   // async delete(postId: number) {
   //   // 1. Find the post (with category and id)
   //   const post = await this.postRepository.findOne({

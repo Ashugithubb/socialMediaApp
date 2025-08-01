@@ -19,6 +19,17 @@ getDiscover(@Query() query: DiscoverPostQueryDto) {
 }
 
 
+  @Get('user/:userId')
+  async getUserPosts(@Param('userId') userId: number) {
+    return this.postsService.getMyPosts(+userId);
+  }
+
+
+// @Get('me')
+// getMyPosts(@Query('page') page: number, @Query('limit') limit: number, @UserId() userId: number) {
+//   return this.postsService.getMyPosts(userId, page, limit);
+// }
+
 
   @Get()
   findAll() {
