@@ -9,20 +9,22 @@ export class CreatePostDto {
   @IsInt()
   userId: number;
 
-  // ✅ Only required when postCatogory is TEXT
   @ValidateIf(o => o.postCatogory === PostCategory.TEXT)
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   content?: string;
 
-  // ✅ Only required when postCatogory is QUOTE
+  
   @ValidateIf(o => o.postCatogory === PostCategory.QOUTE)
   @IsString()
-  @IsNotEmpty()
+ @IsOptional()
   quote?: string;
 
   @ValidateIf(o => o.postCatogory === PostCategory.QOUTE)
+  
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   author?: string;
+
+
 }

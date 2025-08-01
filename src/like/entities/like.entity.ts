@@ -4,7 +4,7 @@ import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } f
 
 @Entity('likes')
 @Entity()
-@Unique(['user', 'post']) // 🚫 Prevent duplicate likes
+@Unique(['user', 'post']) 
 export class Like {
   @PrimaryGeneratedColumn()
   id: number;

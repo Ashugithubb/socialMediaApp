@@ -28,7 +28,7 @@ export class PostsService {
   ) { }
 
 
-  async create(createPostDto: Partial<CreatePostDto>) {
+  async create(createPostDto: CreatePostDto) {
     const { postCatogory, userId, content, quote, author } = createPostDto;
 
     const user = await this.userRepository.findOneBy({ id: userId });
@@ -74,6 +74,7 @@ export class PostsService {
   }
 
 // http://localhost:3001/task/filter?page=2&limit=3&title=project&startTime=2025-08-01T00:00:00.000Z&endTime=2025-08-07T23:59:59.999Z
+
 async discoverPosts(query: DiscoverPostQueryDto) {
   const {
     page = 1,
@@ -129,7 +130,7 @@ async getMyPosts(userId: number) {
   if (!user) {
     throw new NotFoundException('User not found');
   }
-
+  
   const posts = await this.postRepository.find({
     where: { user: { id: userId } },
     relations: ['textPost', 'quotePost', 'likes'],

@@ -31,7 +31,7 @@ export class LikeService {
     throw new NotFoundException('User or Post not found');
   }
 
-  // ❌ Prevent duplicate like
+  
   const existingLike = await this.likeRepository.findOne({
     where: { user: { id: userId }, post: { id: postId } },
   });
